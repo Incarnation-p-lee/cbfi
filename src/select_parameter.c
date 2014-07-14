@@ -84,7 +84,7 @@ set_rawdata_input(char *arg)
     digit = arg + 2;
     instance.opt = INT2FP;
     instance.data = instance.raw;
-    data = strtoll(digit, NULL, 16);
+    data = strtoull(digit, NULL, 16);
   }
   else
   {
