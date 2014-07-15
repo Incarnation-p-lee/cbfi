@@ -26,7 +26,7 @@ ALLDIR        =$(OBJDIR) $(ADIR) $(IDIR) $(SDIR) $(RDIR)
 vpath %.o $(OBJDIR)
 vpath %.c $(SDIR)
 
-.phony:link clean run show
+.phony:link clean run show install
 
 $(TARGET):$(OBJ)
 	$(MAKE) link
@@ -64,6 +64,9 @@ clean:
 show:
 	$(call symbol, $(OBJDIR)/main.o)
 	$(call dylink, $(TARGET))
+
+install:
+	cp -v $(TARGET) /usr/bin/$(basename $(TARGET))
 
 define cleanall
 	-rm -rf $(TARGET) $(OBJDIR)/*
