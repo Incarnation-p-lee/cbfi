@@ -16,16 +16,21 @@ enum fpt_width {
   FLOAT_WIDTH_DOUBLE = 64,
 };
 
+enum fpt_detail {
+  DISABLE_DETAIL,
+  ENABLE_DETAIL,
+};
+
 struct ieee754_float_32 {
-  unsigned sign:1;
-  unsigned exp:8;
   unsigned fraction:23;
+  unsigned exp:8;
+  unsigned sign:1;
 };
 
 struct ieee754_float_64 {
-  unsigned      sign:1;
-  unsigned      exp:11;
   unsigned long fraction:52;
+  unsigned long exp:11;
+  unsigned long sign:1;
 };
 
 struct float_point {
@@ -37,8 +42,8 @@ struct convert {
   enum encoding             type;
   enum operation            opt;
   enum fpt_width            bwidth;
+  enum fpt_detail           detail;
   unsigned char             raw[16];
-  unsigned                  detail;
   struct float_point        fpt_set;
   void                      *data;
   union {

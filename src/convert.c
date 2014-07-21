@@ -50,6 +50,9 @@ ieee754_int2fp(void)
       fprintf(stdout, "Unknown Float Point Width Detected.\n");
       break;
   }
+
+  if (instance.detail)
+    print_ieee754_float_detail();
 }
 
 static void

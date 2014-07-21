@@ -9,6 +9,8 @@ extern void
 print_ieee754_int_32(unsigned *);
 extern void
 print_ieee754_int_64(unsigned long *);
+extern void
+print_ieee754_float_detail(void);
 
 void
 do_convert(void);

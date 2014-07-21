@@ -39,14 +39,14 @@ init_conversion_instance(void)
   instance.opt = INT2FP;
   memset(instance.raw, 0, sizeof(instance.raw));
   instance.bwidth = FLOAT_WIDTH_SINGLE;
-  instance.detail = DETAIL_DISABLED;
+  instance.detail = DISABLE_DETAIL;
   instance.data = instance.raw;
 }
 
 static inline void
 set_details_option(void)
 {
-  instance.detail = DETAIL_ENABLED;
+  instance.detail = ENABLE_DETAIL;
 }
 
 static void
@@ -56,7 +56,7 @@ set_encoding_class(char *arg)
   int class;
 
   tmp = arg;
-  while (isdigit(tmp))
+  while (isdigit(*tmp))
     tmp++;
 
   class = atoi(tmp);
