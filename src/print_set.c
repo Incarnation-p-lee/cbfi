@@ -23,14 +23,14 @@ void
 print_ieee754_float_32(float *fpt)
 {
   fprintf(stdout, "32-bits float point:       ");
-  fprintf(stdout, "%0.6f\n", *fpt);
+  fprintf(stdout, "%0.16f\n", *fpt);
 }
 
 void
 print_ieee754_float_64(double *dbl)
 {
   fprintf(stdout, "64-bits float point:       ");
-  fprintf(stdout, "%0.15f\n", *dbl);
+  fprintf(stdout, "%0.16f\n", *dbl);
 }
 
 void
