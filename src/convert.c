@@ -65,4 +65,7 @@ ieee754_fp2int(void)
   print_ieee754_int_32(tmp);
   tmp = &((struct float_point *)instance.data)->fpt_64;
   print_ieee754_int_64(tmp);
+
+  if (instance.detail)
+    print_ieee754_float_detail();
 }

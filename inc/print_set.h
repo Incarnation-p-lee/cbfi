@@ -15,5 +15,9 @@ void
 print_ieee754_float_detail(void);
 static void
 print_binary_bits(unsigned long, unsigned);
+static inline void
+print_ieee754_double_detail(void);
+static inline void
+print_ieee754_single_detail(void);
 
 #endif
