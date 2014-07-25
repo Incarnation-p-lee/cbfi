@@ -10,12 +10,11 @@ print_usage(void)
 {
   fprintf(stdout, "Author: Incarnation P. Lee\n"
                   "        incarnation.p.lee@gmail.com\n\n"
-                  "Usage: cbfi [-class] [-option] input\n"
-                  "       -class: specific encoding, IEEE754 by default\n"
-                  "             : -c0 IEEE754\n"
-                  "       -option:\n"
-                  "              :-d, show details\n"
-                  "       input: integral, float[add .0 as suffix].\n\n");
+                  "Usage: cbfi [OPTION]... [NUMERIC]\n\n"
+                  "       -d, --detail\n"
+                  "              show details of each field of float point.\n"
+                  "       -f[not supported], --fixed\n"
+                  "              specific fixed point format\n");
   exit(EXIT_SUCCESS);
 }
 
