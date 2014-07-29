@@ -40,6 +40,10 @@ ieee754_int2fp(void)
 {
   switch(instance.bwidth)
   {
+    case FLOAT_WIDTH_HALF:
+      ieee754_half_to_single(*(unsigned long *)instance.data);
+      print_ieee754_float_16(instance.data);
+      break;
     case FLOAT_WIDTH_SINGLE:
       print_ieee754_float_32(instance.data);
       break;
@@ -56,10 +60,224 @@ static void
 ieee754_fp2int(void)
 {
   void *tmp;
-  assert(FLOAT_WIDTH_ALL == instance.bwidth);
+  unsigned *data;
+  struct float_point *fpt_set;
 
-  tmp = &((struct float_point *)instance.data)->fpt_32;
+  fpt_set = instance.data;
+  tmp = &fpt_set->fpt_16;
+  data = tmp;
+  ieee754_single_to_half(*data);
+  print_ieee754_int_16(tmp);
+
+  tmp = &fpt_set->fpt_32;
   print_ieee754_int_32(tmp);
-  tmp = &((struct float_point *)instance.data)->fpt_64;
+
+  tmp = &fpt_set->fpt_64;
   print_ieee754_int_64(tmp);
+}
+
+static void
+ieee754_half_to_single(unsigned data)
+{
+  struct ieee754_float_16 *fpt_16;
+  struct ieee754_float_32 *result;
+  void *tmp;
+  unsigned sfp_exp, bias;
+
+  tmp = &data;
+  fpt_16 = tmp;
+  result = instance.data;
+
+  result->sign = fpt_16->sign;
+  if (ieee754_is_NaN_half(data))
+  {
+    result->exp = 0xff;
+    result->fraction = fpt_16->fraction << 13;
+  }
+  else if (ieee754_is_infi_half(data))
+  {
+    result->exp = 0xff;
+    result->fraction = 0x0;
+  }
+  else if (fpt_16->exp)
+  {
+    sfp_exp = fpt_16->exp - 15 + 127;
+    result->exp = sfp_exp;
+    result->fraction = fpt_16->fraction << (23 - 10);
+  }
+  else if (fpt_16->fraction)
+  {
+    sfp_exp = -14 + 127;
+    bias = 10 - bits_nozero_length(fpt_16->fraction) + 1;
+    sfp_exp -= bias;
+    result->exp = sfp_exp;
+    fpt_16->fraction = fpt_16->fraction << bias;
+    result->fraction = fpt_16->fraction << (23 - 10);
+  }
+  else
+  {
+    result->exp = 0;
+    result->fraction = 0;
+  }
+}
+
+static void
+ieee754_single_to_half(unsigned data)
+{
+  struct ieee754_float_32 *fpt_32;
+  struct ieee754_float_16 *result;
+  void *tmp;
+  unsigned bias, frac;
+
+  bias = frac = 0;
+  tmp = &data;
+  fpt_32 = tmp;
+  tmp = &((struct float_point*)instance.data)->fpt_16;
+  *(unsigned*)tmp = 0x0;
+  result = tmp;
+
+  result->sign = fpt_32->sign;
+  if (ieee754_is_NaN_single(data))
+  {
+    result->exp = 0x1f;
+    result->exp = fpt_32->fraction >> 13;
+  }
+  else if (ieee754_is_infi_single(data))
+  {
+    result->exp = 0x1f;
+    result->fraction = 0x0;
+  }
+  else if (!ieee754_is_single_to_half_overflow(data))
+  {
+    if (fpt_32->exp > 112)
+    {
+      result->exp = fpt_32->exp - 127 + 15;
+      result->fraction = fpt_32->fraction >> 13;
+      fpt_32->exp = 127 + 10;
+      convert_round(*(unsigned*)fpt_32, (unsigned*)result);
+    }
+    else
+    {
+      result->exp = 0x0;
+      bias = 126 - 14 - fpt_32->exp;
+      result->fraction =
+        (SET_BIT((fpt_32->fraction > 1), 22) >> 13) >> bias;
+      fpt_32->exp = 10 - bias - 1 + 127;
+      convert_round(*(unsigned*)fpt_32, (unsigned*)result);
+    }
+  }
+}
+
+static unsigned
+ieee754_is_single_to_half_overflow(unsigned data)
+{
+  float *tmp;
+  void *result;
+  unsigned plus_min, plus_max, minus_min, minus_max;
+
+  tmp = (float*)&data;
+  result = &((struct float_point*)instance.data)->fpt_16;
+  plus_min = PLUS_MIN_HALF_IN_SINGLE;
+  plus_max = PLUS_MAX_HALF_IN_SINGLE;
+  minus_min = MINUS_MIN_HALF_IN_SINGLE;
+  minus_max = MINUS_MAX_HALF_IN_SINGLE;
+
+  if (*tmp < *(float*)&plus_min && !GET_BIT(data, 31))
+  {
+    *(unsigned*)result = 0x0000;
+    return 1;
+  }
+  else if (*tmp > *(float*)&plus_max && !GET_BIT(data, 31))
+  {
+    *(unsigned*)result = 0x7c00;
+    return 1;
+  }
+  else if (*tmp > *(float*)&minus_min && GET_BIT(data, 31))
+  {
+    *(unsigned*)result = 0x8000;
+    return 1;
+  }
+  else if (*tmp < *(float*)&minus_max && GET_BIT(data, 31))
+  {
+    *(unsigned*)result = 0xfc00;
+    return 1;
+  }
+
+  return 0;
+}
+
+static signed
+ieee754_is_NaN_half(unsigned data)
+{
+  struct ieee754_float_16 *fpt_16;
+
+  fpt_16 = (struct ieee754_float_16*)&data;
+  if (0x1f == fpt_16->exp && 0x0 != fpt_16->fraction)
+    return 1;
+
+  return 0;
+}
+
+static signed
+ieee754_is_infi_half(unsigned data)
+{
+  struct ieee754_float_16 *fpt;
+
+  fpt = (struct ieee754_float_16*)&data;
+  if (0x1f == fpt->exp && 0x0 == fpt->fraction)
+    return 1;
+
+  return 0;
+}
+
+static signed
+ieee754_is_NaN_single(unsigned data)
+{
+  struct ieee754_float_32 *fpt;
+
+  fpt = (struct ieee754_float_32*)&data;
+  if (0x1f == fpt->exp && 0x0 != fpt->fraction)
+    return 1;
+
+  return 0;
+}
+
+static signed
+ieee754_is_infi_single(unsigned data)
+{
+  struct ieee754_float_32 *fpt;
+
+  fpt = (struct ieee754_float_32*)&data;
+  if (0x1f == fpt->exp && 0x0 == fpt->fraction)
+    return 1;
+
+  return 0;
+}
+
+static unsigned
+bits_nozero_length(unsigned long frac)
+{
+  register unsigned len;
+
+  len = 0;
+  while (frac) {
+    len++;
+    frac >>= 1;
+  }
+
+  return len;
+}
+
+static void
+convert_round(unsigned data, unsigned *result)
+{
+  float fpt, error;
+
+  fpt = *(float*)&data;
+  fpt = fpt > 0 ? fpt : - fpt;
+  error = fpt - (float)(unsigned)fpt;
+
+  if (error > 0.5f ||
+    (!(error > 0.5f || error < 0.5f) && 0x1 == ((unsigned)fpt & 0x1)))
+    (*result)++;
 }

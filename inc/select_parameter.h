@@ -15,8 +15,11 @@ set_encoding_class(char *);
 static void
 set_rawdata_input(char *);
 static enum operation
-is_input_data_float(char *arg);
+is_input_data_float(char *);
 static void
 store_raw_data(unsigned long long);
+static void
+set_float_bit_width(char *);
+
 
 #endif

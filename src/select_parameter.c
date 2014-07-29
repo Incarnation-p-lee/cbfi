@@ -75,48 +75,62 @@ static void
 set_rawdata_input(char *arg)
 {
   char *digit;
+  enum operation type;
   unsigned long long data;
 
   digit = arg;
   data = 0;
-  if (!strncmp("0x", arg, 2) || !strncmp("0X", arg, 2))
+  type = is_input_data_float(digit);
+
+  if (INT2FP == type && strncmp("0x", arg, 2) && strncmp("0X", arg, 2))
+  {
+    print_usage(); //never return here.
+  }
+  else if (INT2FP == type && (!strncmp("0x", arg, 2) || !strncmp("0X", arg, 2)))
   {
     digit = arg + 2;
-    instance.opt = INT2FP;
-    instance.data = instance.raw;
     data = strtoull(digit, NULL, 16);
+    instance.data = instance.raw;
+    instance.opt = INT2FP;
+    set_float_bit_width(digit);
+    store_raw_data(data);
   }
-  else
+  else if (FP2INT == type)
   {
-    if (FP2INT == is_input_data_float(digit))
-    {
-      instance.opt = FP2INT;
-      instance.fpt_set.fpt_32 = strtof(digit, NULL);
-      instance.fpt_set.fpt_64 = strtod(digit, NULL);
-      instance.bwidth = FLOAT_WIDTH_ALL;
-      instance.data = &instance.fpt_set;
-      return;
-    }
-    else
-      data = strtoll(digit, NULL, 10);
+    instance.opt = FP2INT;
+    instance.fpt_set.fpt_16 = strtof(digit, NULL);
+    instance.fpt_set.fpt_32 = strtof(digit, NULL);
+    instance.fpt_set.fpt_64 = strtod(digit, NULL);
+    instance.bwidth = FLOAT_WIDTH_ALL;
+    instance.data = &instance.fpt_set;
   }
-
-  store_raw_data(data);
 }
 
 static void
+set_float_bit_width(char *arg)
+{
+  switch (strlen(arg))
+  {
+    case 16:
+      instance.bwidth = FLOAT_WIDTH_DOUBLE;
+      break;
+    case 8:
+      instance.bwidth = FLOAT_WIDTH_SINGLE;
+      break;
+    case 4:
+      instance.bwidth = FLOAT_WIDTH_HALF;
+      break;
+    default:
+      instance.bwidth = FLOAT_WIDTH_ALL;
+      break;
+  }
+}
+
+static inline void
 store_raw_data(unsigned long long data)
 {
-  if (data > UINT_MAX)
-  {
-    instance.bwidth = FLOAT_WIDTH_DOUBLE;
     *(unsigned long long *)instance.raw = data;
-  }
-  else
-  {
-    instance.bwidth = FLOAT_WIDTH_SINGLE;
-    *(unsigned *)instance.raw = (unsigned)data;
-  }
+    instance.data = instance.raw;
 }
 
 static enum operation
