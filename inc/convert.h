@@ -13,6 +13,8 @@ extern void
 print_ieee754_int_32(unsigned *);
 extern void
 print_ieee754_int_64(unsigned long *);
+extern void
+print_ieee754_float_detail(void);
 
 #define PLUS_MIN_HALF_IN_SINGLE  0x33800000
 #define MINUS_MIN_HALF_IN_SINGLE 0xb3800000
@@ -27,9 +29,9 @@ static void
 ieee754_int2fp(void);
 static void
 ieee754_fp2int(void);
-static void
+static void *
 ieee754_half_to_single(unsigned);
-static void
+static void *
 ieee754_single_to_half(unsigned);
 static signed
 ieee754_is_NaN_half(unsigned);

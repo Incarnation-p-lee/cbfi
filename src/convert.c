@@ -7,7 +7,7 @@
 void
 do_convert(void)
 {
-  switch(instance.type)
+  switch(instance.attr.type)
   {
     case IEEE754:
       ieee754_direction();
@@ -21,7 +21,7 @@ do_convert(void)
 static void
 ieee754_direction(void)
 {
-  switch(instance.opt)
+  switch(instance.attr.opt)
   {
     case FP2INT:
       ieee754_fp2int();
@@ -38,17 +38,20 @@ ieee754_direction(void)
 static void
 ieee754_int2fp(void)
 {
-  switch(instance.bwidth)
+  void *tmp;
+
+  tmp = instance.raw;
+  switch(instance.attr.bwidth)
   {
     case FLOAT_WIDTH_HALF:
-      ieee754_half_to_single(*(unsigned long *)instance.data);
-      print_ieee754_float_16(instance.data);
+      tmp = ieee754_half_to_single(*(unsigned*)tmp);
+      print_ieee754_float_16(tmp);
       break;
     case FLOAT_WIDTH_SINGLE:
-      print_ieee754_float_32(instance.data);
+      print_ieee754_float_32(tmp);
       break;
     case FLOAT_WIDTH_DOUBLE:
-      print_ieee754_float_64(instance.data);
+      print_ieee754_float_64(tmp);
       break;
     default:
       fprintf(stdout, "Unknown Float Point Width Detected.\n");
@@ -63,10 +66,10 @@ ieee754_fp2int(void)
   unsigned *data;
   struct float_point *fpt_set;
 
-  fpt_set = instance.data;
+  fpt_set = &instance.fpt_set;
   tmp = &fpt_set->fpt_16;
   data = tmp;
-  ieee754_single_to_half(*data);
+  tmp = ieee754_single_to_half(*data);
   print_ieee754_int_16(tmp);
 
   tmp = &fpt_set->fpt_32;
@@ -76,7 +79,7 @@ ieee754_fp2int(void)
   print_ieee754_int_64(tmp);
 }
 
-static void
+static void*
 ieee754_half_to_single(unsigned data)
 {
   struct ieee754_float_16 *fpt_16;
@@ -86,7 +89,8 @@ ieee754_half_to_single(unsigned data)
 
   tmp = &data;
   fpt_16 = tmp;
-  result = instance.data;
+  tmp = &instance.fpt_set.fpt_16;
+  result = tmp;
 
   result->sign = fpt_16->sign;
   if (ieee754_is_NaN_half(data))
@@ -119,9 +123,11 @@ ieee754_half_to_single(unsigned data)
     result->exp = 0;
     result->fraction = 0;
   }
+
+  return result;
 }
 
-static void
+static void*
 ieee754_single_to_half(unsigned data)
 {
   struct ieee754_float_32 *fpt_32;
@@ -132,8 +138,7 @@ ieee754_single_to_half(unsigned data)
   bias = frac = 0;
   tmp = &data;
   fpt_32 = tmp;
-  tmp = &((struct float_point*)instance.data)->fpt_16;
-  *(unsigned*)tmp = 0x0;
+  tmp = instance.raw;
   result = tmp;
 
   result->sign = fpt_32->sign;
@@ -166,6 +171,8 @@ ieee754_single_to_half(unsigned data)
       convert_round(*(unsigned*)fpt_32, (unsigned*)result);
     }
   }
+
+  return result;
 }
 
 static unsigned
@@ -176,7 +183,7 @@ ieee754_is_single_to_half_overflow(unsigned data)
   unsigned plus_min, plus_max, minus_min, minus_max;
 
   tmp = (float*)&data;
-  result = &((struct float_point*)instance.data)->fpt_16;
+  result = &((struct float_point*)instance.raw)->fpt_16;
   plus_min = PLUS_MIN_HALF_IN_SINGLE;
   plus_max = PLUS_MAX_HALF_IN_SINGLE;
   minus_min = MINUS_MIN_HALF_IN_SINGLE;

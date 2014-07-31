@@ -17,6 +17,11 @@ enum fpt_width {
   FLOAT_WIDTH_DOUBLE = 64,
 };
 
+enum fpt_detail {
+  DISABLE_DETAIL,
+  ENABLE_DETAIL,
+};
+
 struct ieee754_float_16 {
   unsigned fraction:10;
   unsigned exp:5;
@@ -31,8 +36,15 @@ struct ieee754_float_32 {
 
 struct ieee754_float_64 {
   unsigned long fraction:52;
-  unsigned      exp:11;
-  unsigned      sign:1;
+  unsigned long exp:11;
+  unsigned long sign:1;
+};
+
+struct convert_attr {
+  enum encoding   type;
+  enum operation  opt;
+  enum fpt_width  bwidth;
+  enum fpt_detail detail;
 };
 
 struct float_point {
@@ -42,18 +54,13 @@ struct float_point {
 };
 
 struct convert {
-  enum encoding             type;
-  enum operation            opt;
-  enum fpt_width            bwidth;
-  unsigned                  detail;
-  unsigned char             raw[16];
-  struct float_point        fpt_set;
-  void                      *data;
   /*
-    data point to the real data we get.
-    If fp 2 int, data = raw,
-    If int 2 fp, data = &fpt_set
+    when fp 2 int, input data stored at fpt_set
+    when int 2 fp, input data stored the raw
   */
+  struct convert_attr attr;
+  unsigned char       raw[16];
+  struct float_point  fpt_set;
 };
 
 #endif

@@ -35,18 +35,23 @@ select_parameter(int argc, char **argv)
 static void
 init_conversion_instance(void)
 {
-  instance.type = IEEE754;
-  instance.opt = INT2FP;
+  struct convert_attr *attr;
+
+  attr = &instance.attr;
+  attr->type = IEEE754;
+  attr->opt = INT2FP;
+  attr->bwidth = FLOAT_WIDTH_SINGLE;
+  attr->detail = DISABLE_DETAIL;
   memset(instance.raw, 0, sizeof(instance.raw));
-  instance.bwidth = FLOAT_WIDTH_SINGLE;
-  instance.detail = DETAIL_DISABLED;
-  instance.data = instance.raw;
 }
 
 static inline void
 set_details_option(void)
 {
-  instance.detail = DETAIL_ENABLED;
+  struct convert_attr *attr;
+
+  attr = &instance.attr;
+  attr->detail = ENABLE_DETAIL;
 }
 
 static void
@@ -54,19 +59,21 @@ set_encoding_class(char *arg)
 {
   char *tmp;
   int class;
+  struct convert_attr *attr;
 
   tmp = arg;
-  while (isdigit(tmp))
+  while (isdigit(*tmp))
     tmp++;
 
   class = atoi(tmp);
+  attr = &instance.attr;
   switch (class)
   {
     case IEEE754:
-      instance.type = IEEE754;
+      attr->type = IEEE754;
       break;
     default:
-      instance.type = IEEE754;
+      attr->type = IEEE754;
       break;
   }
 }
@@ -77,9 +84,13 @@ set_rawdata_input(char *arg)
   char *digit;
   enum operation type;
   unsigned long long data;
+  struct convert_attr *attr;
+  struct float_point *fpt;
 
   digit = arg;
   data = 0;
+  attr = &instance.attr;
+  fpt = &instance.fpt_set;
   type = is_input_data_float(digit);
 
   if (INT2FP == type && strncmp("0x", arg, 2) && strncmp("0X", arg, 2))
@@ -90,47 +101,46 @@ set_rawdata_input(char *arg)
   {
     digit = arg + 2;
     data = strtoull(digit, NULL, 16);
-    instance.data = instance.raw;
-    instance.opt = INT2FP;
+    attr->opt = INT2FP;
     set_float_bit_width(digit);
-    store_raw_data(data);
+    store_int_data(data);
   }
   else if (FP2INT == type)
   {
-    instance.opt = FP2INT;
-    instance.fpt_set.fpt_16 = strtof(digit, NULL);
-    instance.fpt_set.fpt_32 = strtof(digit, NULL);
-    instance.fpt_set.fpt_64 = strtod(digit, NULL);
-    instance.bwidth = FLOAT_WIDTH_ALL;
-    instance.data = &instance.fpt_set;
+    attr->opt = FP2INT;
+    attr->bwidth = FLOAT_WIDTH_ALL;
+    fpt->fpt_16 = strtof(digit, NULL);
+    fpt->fpt_32 = strtof(digit, NULL);
+    fpt->fpt_64 = strtod(digit, NULL);
   }
 }
 
 static void
 set_float_bit_width(char *arg)
 {
+  struct convert_attr *attr;
+
+  attr = &instance.attr;
   switch (strlen(arg))
   {
     case 16:
-      instance.bwidth = FLOAT_WIDTH_DOUBLE;
+      attr->bwidth = FLOAT_WIDTH_DOUBLE;
       break;
     case 8:
-      instance.bwidth = FLOAT_WIDTH_SINGLE;
+      attr->bwidth = FLOAT_WIDTH_SINGLE;
       break;
     case 4:
-      instance.bwidth = FLOAT_WIDTH_HALF;
+      attr->bwidth = FLOAT_WIDTH_HALF;
       break;
     default:
-      instance.bwidth = FLOAT_WIDTH_ALL;
       break;
   }
 }
 
 static inline void
-store_raw_data(unsigned long long data)
+store_int_data(unsigned long long data)
 {
-    *(unsigned long long *)instance.raw = data;
-    instance.data = instance.raw;
+  *(unsigned long long *)instance.raw = data;
 }
 
 static enum operation
