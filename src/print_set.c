@@ -21,7 +21,7 @@ print_usage(void)
 void
 print_ieee754_float_16(float *fpt)
 {
-  fprintf(stdout, "half float point[16]:         ");
+  fprintf(stdout, "half float point[16]:        ");
   fprintf(stdout, "%0.16f\n", *fpt);
 
   if (ENABLE_DETAIL == instance.attr.detail)
@@ -31,7 +31,7 @@ print_ieee754_float_16(float *fpt)
 void
 print_ieee754_float_32(float *fpt)
 {
-  fprintf(stdout, "single float point[32]:       ");
+  fprintf(stdout, "single float point[32]:      ");
   fprintf(stdout, "%0.16f\n", *fpt);
 
   if (ENABLE_DETAIL == instance.attr.detail)
@@ -41,7 +41,7 @@ print_ieee754_float_32(float *fpt)
 void
 print_ieee754_float_64(double *dbl)
 {
-  fprintf(stdout, "double float point[64]:       ");
+  fprintf(stdout, "double float point[64]:      ");
   fprintf(stdout, "%0.16f\n", *dbl);
 
   if (ENABLE_DETAIL == instance.attr.detail)
@@ -51,7 +51,7 @@ print_ieee754_float_64(double *dbl)
 void
 print_ieee754_int_16(unsigned *uint)
 {
-  fprintf(stdout, "half float point[16]:         ");
+  fprintf(stdout, "half float point[16]:        ");
   fprintf(stdout, "%#04X\n", *uint);
 
   if (ENABLE_DETAIL == instance.attr.detail)
@@ -61,7 +61,7 @@ print_ieee754_int_16(unsigned *uint)
 void
 print_ieee754_int_32(unsigned *uint)
 {
-  fprintf(stdout, "single float point[32]:       ");
+  fprintf(stdout, "single float point[32]:      ");
   fprintf(stdout, "%#08X\n", *uint);
 
   if (ENABLE_DETAIL == instance.attr.detail)
@@ -71,7 +71,7 @@ print_ieee754_int_32(unsigned *uint)
 void
 print_ieee754_int_64(unsigned long *ulong)
 {
-  fprintf(stdout, "double float point[64]:       ");
+  fprintf(stdout, "double float point[64]:      ");
   fprintf(stdout, "%#016lX\n", *ulong);
 
   if (ENABLE_DETAIL == instance.attr.detail)
@@ -84,13 +84,15 @@ print_ieee754_half_detail(void *data)
   struct ieee754_float_16 *f16;
 
   f16 = data;
-  fprintf(stdout, "  |sign:    %#016x  ", f16->sign);
+  fprintf(stdout, "            Hexadecimal      Decimal          Binary\n");
+
+  fprintf(stdout, "  |sign:    %016x %016u ", f16->sign, f16->sign);
   print_binary_bits(f16->sign, 1);
 
-  fprintf(stdout, "  |exp :    %#016x  ", f16->exp);
+  fprintf(stdout, "  |exp :    %016x %016u ", f16->exp, f16->exp);
   print_binary_bits(f16->exp, 5);
 
-  fprintf(stdout, "  |frac:    %#016x  ", f16->fraction);
+  fprintf(stdout, "  |frac:    %016x %016u ", f16->fraction, f16->fraction);
   print_binary_bits(f16->fraction, 10);
 
   fprintf(stdout, "\n");
@@ -102,13 +104,15 @@ print_ieee754_single_detail(void *data)
   struct ieee754_float_32 *f32;
 
   f32 = data;
-  fprintf(stdout, "  |sign:    %#016x  ", f32->sign);
+  fprintf(stdout, "            Hexadecimal      Decimal          Binary\n");
+
+  fprintf(stdout, "  |sign:    %016x %016u ", f32->sign, f32->sign);
   print_binary_bits(f32->sign, 1);
 
-  fprintf(stdout, "  |exp :    %#016x  ", f32->exp);
+  fprintf(stdout, "  |exp :    %016x %016u ", f32->exp, f32->exp);
   print_binary_bits(f32->exp, 8);
 
-  fprintf(stdout, "  |frac:    %#016x  ", f32->fraction);
+  fprintf(stdout, "  |frac:    %016x %016u ", f32->fraction, f32->fraction);
   print_binary_bits(f32->fraction, 23);
 
   fprintf(stdout, "\n");
@@ -121,13 +125,16 @@ print_ieee754_double_detail(void *data)
   struct ieee754_float_64 *f64;
 
   f64 = data;
-  fprintf(stdout, "  |sign:    %#016x  ", f64->sign);
+  fprintf(stdout, "            Hexadecimal      Decimal          Binary\n");
+
+  fprintf(stdout, "  |sign:    %016x %016u ", f64->sign, f64->sign);
   print_binary_bits(f64->sign, 1);
 
-  fprintf(stdout, "  |exp :    %#016x  ", f64->exp);
+  fprintf(stdout, "  |exp :    %016x %016u ", f64->exp, f64->exp);
   print_binary_bits(f64->exp, 11);
 
-  fprintf(stdout, "  |frac:    %#016lx  ", (unsigned long)f64->fraction);
+  fprintf(stdout, "  |frac:    %016lx %016lu ",
+    (unsigned long)f64->fraction, (unsigned long)f64->fraction);
   print_binary_bits(f64->fraction, 52);
 
   fprintf(stdout, "\n");
