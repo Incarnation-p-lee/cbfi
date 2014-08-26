@@ -11,7 +11,7 @@ init_conversion_instance(void);
 static inline void
 set_details_option(void);
 static void
-set_encoding_class(char *);
+set_fixed_point(char *);
 static void
 set_rawdata_input(char *);
 static enum operation

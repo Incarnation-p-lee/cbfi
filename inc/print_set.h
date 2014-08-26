@@ -15,6 +15,13 @@ void
 print_ieee754_int_32(unsigned *);
 void
 print_ieee754_int_64(unsigned long *);
+void
+print_fixed_float_16(void *, unsigned);
+void
+print_fixed_float_32(void *, unsigned);
+void
+print_fixed_float_32(void *, unsigned);
+
 static inline void
 print_ieee754_half_detail(void *);
 static inline void

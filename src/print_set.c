@@ -140,6 +140,28 @@ print_ieee754_double_detail(void *data)
   fprintf(stdout, "\n");
 }
 
+
+void
+print_fixed_float_16(void *fixed, unsigned frac)
+{
+  fprintf(stdout, "half fixed point[16:%2u]:        ", frac);
+  fprintf(stdout, "%#04X\n", *(unsigned*)fixed);
+}
+
+void
+print_fixed_float_32(void *fixed, unsigned frac)
+{
+  fprintf(stdout, "half fixed point[32:%2u]:        ", frac);
+  fprintf(stdout, "%#08X\n", *(unsigned*)fixed);
+}
+
+void
+print_fixed_float_64(void *fixed, unsigned frac)
+{
+  fprintf(stdout, "half fixed point[64:%2u]:        ", frac);
+  fprintf(stdout, "%#016llX\n", *(unsigned long long*)fixed);
+}
+
 static void
 print_binary_bits(unsigned long data, unsigned size)
 {

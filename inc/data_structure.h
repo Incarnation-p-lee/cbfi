@@ -8,6 +8,7 @@ enum operation {
 
 enum encoding {
   IEEE754 = 0,
+  FIXED,
 };
 
 enum fpt_width {
@@ -53,14 +54,26 @@ struct float_point {
   double fpt_64;
 };
 
+struct fixed_point {
+  unsigned char fixed_16[2];
+  unsigned char fixed_32[4];
+  unsigned char fixed_64[8];
+  unsigned      frac_bits;
+};
+
 struct convert {
   /*
     when fp 2 int, input data stored at fpt_set
     when int 2 fp, input data stored the raw
-  */
+   */
   struct convert_attr attr;
   unsigned char       raw[16];
   struct float_point  fpt_set;
+  /*
+    when fp to fixed, input data stored at fpt_set, use double only
+    when fixed to fp, input data stored at raw
+   */
+  struct fixed_point  fixed;
 };
 
 #endif

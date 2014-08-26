@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -24,10 +25,14 @@ select_parameter(int argc, char **argv)
   {
     if (!strcmp("-d", argv[count]))
       set_details_option();
-    else if (!strncmp("-c", argv[count], 2))
-      set_encoding_class(argv[count]);
+    else if (!strncmp("-f", argv[count], 2))
+    {
+      count++;
+      set_fixed_point(argv[count]);
+    }
     else
       set_rawdata_input(argv[count]);
+
     count++;
   }
 }
@@ -55,27 +60,22 @@ set_details_option(void)
 }
 
 static void
-set_encoding_class(char *arg)
+set_fixed_point(char *arg)
 {
   char *tmp;
-  int class;
+  int frac_bits;
   struct convert_attr *attr;
+  struct fixed_point *fixed;
 
   tmp = arg;
-  while (isdigit(*tmp))
+  while (!isdigit(*tmp))
     tmp++;
 
-  class = atoi(tmp);
+  frac_bits = atoi(tmp);
   attr = &instance.attr;
-  switch (class)
-  {
-    case IEEE754:
-      attr->type = IEEE754;
-      break;
-    default:
-      attr->type = IEEE754;
-      break;
-  }
+  fixed = &instance.fixed;
+  attr->type = FIXED;
+  fixed->frac_bits = frac_bits;
 }
 
 static void
