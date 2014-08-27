@@ -26,6 +26,7 @@ print_fixed_float_64(void *, unsigned);
 #define MINUS_MIN_HALF_IN_SINGLE 0xb3800000
 #define PLUS_MAX_HALF_IN_SINGLE  0x477fe000
 #define MINUS_MAX_HALF_IN_SINGLE 0xc77fe000
+#define DOUBLE_EXP_BITS_MASK     0x800fffffffffffffull
 
 void
 do_convert(void);
@@ -64,5 +65,7 @@ static inline void
 fixed_point_set_sign(unsigned long long *, unsigned, unsigned);
 static signed
 is_fp2fd_overflow(double, unsigned, unsigned);
+static void
+fixed_point_fd2fp(void);
 
 #endif

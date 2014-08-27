@@ -7,7 +7,7 @@ fixed_point_direction(void)
       fixed_point_fp2fd();
       break;
     case INT2FP:
-      //fixed_point_fd2fp();
+      fixed_point_fd2fp();
       break;
     default:
       fprintf(stdout, "Unknown Operation Detected.\n");
@@ -89,3 +89,45 @@ is_fp2fd_overflow(double fp, unsigned width, unsigned frac_bits)
   return 0;
 }
 
+static void
+fixed_point_fd2fp(void)
+{
+  double real;
+  struct float_point *fpt;
+  enum fpt_width wd;
+  unsigned frac_bits;
+  unsigned sign;
+  unsigned long long *tmp;
+
+  tmp = (unsigned long long *)instance.raw;
+  fpt = &instance.fpt_set;
+  wd = instance.attr.bwidth;
+  frac_bits = instance.fixed.frac_bits;
+
+  switch (wd)
+  {
+    case FLOAT_WIDTH_DOUBLE:
+      sign = GET_BIT(*tmp, 63);
+      *tmp = CLR_BIT(*tmp, 63);
+      break;
+    case FLOAT_WIDTH_SINGLE:
+      sign = GET_BIT(*tmp, 31);
+      *tmp = CLR_BIT(*tmp, 31);
+      break;
+    case FLOAT_WIDTH_HALF:
+      sign = GET_BIT(*tmp, 15);
+      *tmp = CLR_BIT(*tmp, 15);
+      break;
+    case FLOAT_WIDTH_ALL:
+      printf("[34mWARNING[0m:Unexpected Enum Value Detected.\n");
+      break;
+  }
+
+  real = (double)(*tmp);
+  tmp = (unsigned long long *)&real;
+  *tmp = ((GET_BITS(*tmp, 52, 62) - frac_bits) << 52) + (*tmp & DOUBLE_EXP_BITS_MASK);
+  fixed_point_set_sign(tmp, wd, sign);
+
+  fpt->fpt_64 = real;
+  print_ieee754_float_64(&fpt->fpt_64);
+}
