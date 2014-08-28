@@ -129,5 +129,17 @@ fixed_point_fd2fp(void)
   fixed_point_set_sign(tmp, wd, sign);
 
   fpt->fpt_64 = real;
+  if (ENABLE_DETAIL == instance.attr.detail)
+    *(double*)instance.raw = fpt->fpt_64;
   print_ieee754_float_64(&fpt->fpt_64);
+
+  fpt->fpt_32 = (float)real;
+  if (ENABLE_DETAIL == instance.attr.detail)
+    *(float*)instance.raw = fpt->fpt_32;
+  print_ieee754_float_32(&fpt->fpt_32);
+
+  fpt->fpt_16 = (float)real;
+  if (ENABLE_DETAIL == instance.attr.detail)
+    ieee754_single_to_half(*(unsigned*)&fpt->fpt_16);
+  print_ieee754_float_16(&fpt->fpt_16);
 }

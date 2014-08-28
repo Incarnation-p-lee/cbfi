@@ -114,6 +114,8 @@ ieee754_single_to_half(unsigned data)
   struct ieee754_float_16 *result;
   void *tmp;
   unsigned bias, frac;
+  double real;
+  unsigned long long *operand;
 
   bias = frac = 0;
   tmp = &data;
@@ -139,7 +141,6 @@ ieee754_single_to_half(unsigned data)
       result->exp = fpt_32->exp - 127 + 15;
       result->fraction = fpt_32->fraction >> 13;
       fpt_32->exp = 127 + 10;
-      convert_round(*(unsigned*)fpt_32, (unsigned*)result);
     }
     else
     {
@@ -148,8 +149,11 @@ ieee754_single_to_half(unsigned data)
       result->fraction =
         (SET_BIT((fpt_32->fraction > 1), 22) >> 13) >> bias;
       fpt_32->exp = 10 - bias - 1 + 127;
-      convert_round(*(unsigned*)fpt_32, (unsigned*)result);
     }
+    real = (double)(*(float *)fpt_32);
+    operand = (unsigned long long *)&real;
+    if (convert_round(*operand, FPRound_TIAEVEN))
+      *(unsigned *)result += 1;
   } else {
     printf("[34mWARNING[0m:Sp 2 Hp Overflow Occurs, Raw %#08X\n", data);
   }
@@ -257,17 +261,42 @@ bits_nozero_length(unsigned long frac)
   return len;
 }
 
-static void
-convert_round(unsigned data, unsigned *result)
+static signed
+convert_round(unsigned long long data, enum FPRound_Mode mode)
 {
-  float fpt, error;
+  signed round_up;
+  unsigned sign;
+  double fpt, error;
 
-  fpt = *(float*)&data;
+  fpt = *(double*)&data;
   fpt = fpt > 0 ? fpt : - fpt;
-  error = fpt - (float)(unsigned)fpt;
+  sign = (unsigned)GET_BIT(data, 63);
+  error = fpt - (double)(unsigned long long)fpt;
 
-  if (error > 0.5f ||
-    (!(error > 0.5f || error < 0.5f) && 0x1 == ((unsigned)fpt & 0x1)))
-    (*result)++;
+  round_up = 0;
+  switch (mode)
+  {
+    case FPRound_TIAEVEN:
+      if (error > 0.5f ||
+        (!(error > 0.5f || error < 0.5f) && 0x1 == ((unsigned)fpt & 0x1)))
+        round_up = 1;
+      break;
+    case FPRound_TIAAWZERO:
+      if (!(error < 0.5f))
+        round_up = 1;
+      break;
+    case FPRound_ZERO:
+      break;
+    case FPRound_PINFI:
+      if (error > 0.0f && !sign)
+        round_up = 1;
+      break;
+    case FPRound_MINFI:
+      if (error > 0.0f && sign)
+        round_up = 1;
+      break;
+  }
+
+  return round_up;
 }
 

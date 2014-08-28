@@ -18,6 +18,14 @@ enum fpt_width {
   FLOAT_WIDTH_DOUBLE = 64,
 };
 
+enum FPRound_Mode {
+  FPRound_TIAEVEN,
+  FPRound_TIAAWZERO,
+  FPRound_ZERO,
+  FPRound_PINFI,
+  FPRound_MINFI,
+};
+
 enum fpt_detail {
   DISABLE_DETAIL,
   ENABLE_DETAIL,

@@ -52,8 +52,8 @@ static unsigned
 ieee754_is_single_to_half_overflow(unsigned);
 static unsigned
 bits_nozero_length(unsigned long);
-static void
-convert_round(unsigned, unsigned*);
+static signed
+convert_round(unsigned long long , enum FPRound_Mode);
 
 static void
 fixed_point_direction(void);
