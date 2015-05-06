@@ -5,7 +5,8 @@ SRC           := main.c print_set.c select_parameter.c convert.c
 
 SHELL         =/bin/bash
 CC            =gcc
-COVERAGE      =-fprofile-arcs -ftest-coverage
+# COVERAGE      =-fprofile-arcs -ftest-coverage
+COVERAGE      =
 OBJ           =$(patsubst %.c, %.o, $(SRC))
 INCH          =./inc
 INCS          =./src
