@@ -13,7 +13,7 @@ print_usage(void)
                   "Usage: cbfi [OPTION]... [NUMERIC]\n\n"
                   "       -d, --detail\n"
                   "              show details of each field of float point.\n"
-                  "       -f[not supported], --fixed\n"
+                  "       -f frac_num, --fixed\n"
                   "              specific fixed point format\n");
   exit(EXIT_SUCCESS);
 }
