@@ -6,15 +6,18 @@ gcc required, just make.
 conversion between float point and its' binary layout
    This tiny tool _DO_ _NOT_ guarantee the correct result for rounding. It
 main focus on the binary layout in memory or internal structure of one float point.
-
+```
 Format:
    cbfi 0xXXXXXXXX
        Means convert binary layout to float point, only 16, 32, 64 bits is valid.
    cbfi XXXXX.XX
        Means convert to binary layout of float point
    Also, you can use -d option to show more information you may need.
+```
 
 Sample:
+
+```
 <22>pli[9903]@~/Workspace/project/cbfi*1 > cbfi 1.0
 half float point[16]:        0X3C00
 single float point[32]:      0X3F800000
@@ -56,4 +59,4 @@ single float point[32]:      112640.2812500000000000
   |sign:    0000000000000000 0000000000000000 0B
   |exp :    000000000000008f 0000000000000143 10001111B
   |frac:    00000000005c0024 0000000006029348 10111000000000000100100B
-
+```
