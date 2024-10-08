@@ -14,6 +14,6 @@
 #define CLR_BIT(op, n)         ((op) & ((~0x0ull) ^ (0x1ull << (n))))
 #define GET_BITS(op, b1, b2)   (((op) >> (b1)) & ((0x2ull << ((b2) - (b1))) - 1))
 
-struct convert instance;
+extern struct convert instance;
 
 #endif

@@ -7,6 +7,8 @@
 #include "ieee754_convert.c"
 #include "fixed_point_convert.c"
 
+struct convert instance;
+
 void
 do_convert(void)
 {
